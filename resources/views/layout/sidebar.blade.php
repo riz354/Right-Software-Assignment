@@ -42,9 +42,21 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="{{ route('dashboard') }}" class="nav-link active">
+                <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : null }}">
                   <i class="nav-icon bi bi-circle"></i>
                   <p>Dashboard v1</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('category.index') }}" class="nav-link {{ request()->routeIs('category.index') ? 'active' : null }}">
+                  <i class="nav-icon bi bi-circle"></i>
+                  <p>Categories</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('product.index') }}" class="nav-link {{ request()->routeIs('product.index') ? 'active' : null }}">
+                  <i class="nav-icon bi bi-circle"></i>
+                  <p>Products</p>
                 </a>
               </li>
               <li class="nav-item">
