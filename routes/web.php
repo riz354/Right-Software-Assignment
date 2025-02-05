@@ -11,7 +11,8 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     // return view('dashboard');
-    return view('welcome');
+    // return view('welcome');
+    return redirect()->route('category.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -31,7 +32,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/',[ProductController::class,'index'])->name('index');
         Route::post('/store',[ProductController::class,'store'])->name('store');
         Route::get('/edit/{id}',[ProductController::class,'edit'])->name('edit');
-        Route::put('/update/{id}',[ProductController::class,'update'])->name('update');
+        Route::post('/update/{id}',[ProductController::class,'update'])->name('update');
         Route::delete('/destroy/{id}',[ProductController::class,'destroy'])->name('destroy');
     });
 });

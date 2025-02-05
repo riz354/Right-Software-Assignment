@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Product\StoreRequest;
+use App\Http\Requests\Product\UpdateRequest;
+use App\Jobs\ProcessProductImages;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Yajra\DataTables\Facades\DataTables;
 use Intervention\Image\Facades\Image;
@@ -30,6 +34,25 @@ class ProductController extends Controller
                 ->editColumn('name', function ($product) {
                     return $product->name ?? '-';
                 })
+                ->editColumn('category', function ($product) {
+                    return $product->category->name ?? '-';
+                })
+                ->editColumn('image', function ($product) {
+                    $images = $product->images;
+                    $images_preview = '<div class="row">';
+                    foreach ($images as $image) {
+                        $path = asset('storage/' . $image->image_path);
+                        $images_preview .= '
+                            <div class="col-4 text-center">
+                                <img src="'.$path.'" class="img-thumbnail m-0 p-0" width="50" height="50">
+                            </div>
+                        ';
+                    }
+                    $images_preview .= '</div>'; 
+                    return $images_preview;
+                })
+                
+                
                 ->editColumn('price', function ($product) {
                     return $product->price ?? '-';
                 })->editColumn('description', function ($product) {
@@ -41,7 +64,7 @@ class ProductController extends Controller
                     $deleteBtn = '<a href="javascript:void(0)" class="btn btn-sm btn-danger delete-btn" data-id="' . $product->id . '"><i class="fa fa-trash"></i></a>';
                     return $editBtn . ' ' . $deleteBtn;
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['action','image'])
                 ->make(true);
         }
         $categories = Category::get();
@@ -63,16 +86,10 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'category_id' => 'required|exists:categories,id',
-            'price' => 'required|numeric',
-            'description' => 'required|string',
-        ]);
-
         try {
+        DB::transaction(function () use ($request) {
             $product = Product::create([
                 'name' => $request->name,
                 'category_id' => $request->category_id,
@@ -81,27 +98,18 @@ class ProductController extends Controller
             ]);
 
             if ($request->hasFile('images')) {
+                $imagesPath = [];
                 foreach ($request->file('images') as $image) {
-                    $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
-                    $manager = new ImageManager(new Driver());
-                    $img = $manager->read($image);
-                    $img = $img->resize(800, 800);
-                    $img = $img->toJpeg(80);
-                    $imagePath = 'products/' . $imageName;
-                    $img->save(storage_path('app/public/' . $imagePath));
-
-
-                    ProductImage::create([
-                        'product_id' => $product->id,
-                        'image_path' => $imagePath,
-                    ]);
+                    $path = $image->store('temp-products', 'public');
+                    $imagesPath[] =  $path;
                 }
+                dispatch(new ProcessProductImages($product->id,  $imagesPath));
             }
-           
-            return response()->json([
-                'success' => true,
-                'product' => $product,
-            ]);
+        });
+
+        return response()->json([
+            'success' => true,
+        ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -125,7 +133,18 @@ class ProductController extends Controller
     {
         try {
             $product = Product::find($id);
-            return response()->json(['success' => true, 'product' => $product]);
+            $images = $product->images;
+            $imagesPath = [];
+            if (isset($images)) {
+                foreach ($images as $image) {
+                    $imagesPath[] = asset('storage/' . $image->image_path);
+                }
+            }
+            return response()->json([
+                'success' => true,
+                'product' => $product,
+                'imagesPath' => $imagesPath
+            ]);
         } catch (\Throwable $th) {
             return response()->json(['success' => false, 'message' => 'Product not found']);
         }
@@ -133,27 +152,61 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateRequest $request, $id)
     {
+        try {
+
+            DB::transaction(function () use ($request, $id) {
+                $product = Product::updateOrCreate(['id' => $id], [
+                    'name' => $request->name,
+                    'category_id' => $request->category_id,
+                    'price' => $request->price,
+                    'description' => $request->description,
+                ]);
+                if ($request->hasFile('images')) {
+                    $product->images()->delete();
+                    $imagesPath = [];
+                    foreach ($request->file('images') as $image) {
+                        $path = $image->store('temp-products', 'public');
+                        $imagesPath[] =  $path;
+                    }
+                    dispatch(new ProcessProductImages($product->id,  $imagesPath));
+                }
+            });
+
+            return response()->json([
+                'success' => true,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 
 
     public function destroy($id)
     {
         try {
-            $product = Product::find($id);
-            if ($product) {
-                $images = $product->images;
-                foreach ($images as $image) {
-                    $filePath = storage_path('app/public/' . $image->image_path);  
-                    if (File::exists($filePath)) {
-                        Storage::delete('public/' . $image->image_path); 
+            DB::transaction(function () use ($id) {
+                $product = Product::find($id);
+                if ($product) {
+                    $images = $product->images;
+                    foreach ($images as $image) {
+                        if (Storage::disk('public')->exists($image->image_path)) {
+                            Storage::disk('public')->delete($image->image_path);
+                        }
                     }
+                    $product->delete();
+                    $product->images()->delete();
+                    return response()->json(['success' => true]);
                 }
-                $product->delete();
-                $product->images()->delete();
-                return response()->json(['success' => true]);
-            }
+            });
+
+            return response()->json([
+                'success' => true,
+            ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
@@ -162,4 +215,3 @@ class ProductController extends Controller
         }
     }
 }
-

@@ -1,9 +1,12 @@
 @extends('layout.main-layout')
-@section('title', 'AdminLTE v4 | Product')
+@section('title', 'Assignment | Product')
 @section('page-css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" />
     <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css"
+        integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 @endsection
 
 @section('content')
@@ -20,7 +23,9 @@
                         <tr>
                             <th>No</th>
                             <th>Name</th>
+                            <th>Category</th>
                             <th>Price</th>
+                            <th>Images</th>
                             <th>Description</th>
                             <th width="100px">Action</th>
                         </tr>
@@ -45,15 +50,18 @@
                             <input type="hidden" id="productId">
                             <ul id="errorList" style="display: none;"></ul>
                             <div class="mb-2">
-                                <label for="name" class="form-label">Product Name</label>
+                                <label for="name" class="form-label">Product Name <span
+                                        class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="name" name="name" required>
                             </div>
                             <div class="mb-2">
-                                <label for="price" class="form-label">Product Price</label>
+                                <label for="price" class="form-label">Product Price<span
+                                        class="text-danger">*</span></label>
                                 <input type="number" class="form-control" id="price" name="price" required>
                             </div>
                             <div class="mb-2">
-                                <label for="category_id" class="form-label">Category</label>
+                                <label for="category_id" class="form-label">Category<span
+                                        class="text-danger">*</span></label>
                                 <select name="category_id" class="form-select" id="category_id">
                                     <option value="">Select Category</option>
                                     @foreach ($categories as $category)
@@ -62,13 +70,17 @@
                                 </select>
                             </div>
                             <div class="mb-2">
-                                <label for="images" class="form-label">Product Images</label>
-                                <input type="file" name="images[]" class="form-control" id="images" multiple required>
+                                <label for="images" class="form-label">Product Images<span class="text-danger"
+                                        id="req-sign">*</span></label>
+                                <input type="file" name="images[]" class="form-control" id="images" multiple
+                                    accept=".png,.jpeg,.jpg">
                                 <small style="font-size:9px">Select multiple product images</small>
                             </div>
+                            <div id="imagePreviews" class="mb-2"></div>
 
                             <div class="mb-2">
-                                <label for="description" class="form-label">Product Description</label>
+                                <label for="description" class="form-label">Product Description<span
+                                        class="text-danger">*</span></label>
                                 <textarea class="form-control" id="description" name="description" required></textarea>
                             </div>
                             <button type="submit" class="btn btn-primary" id="productModalBtn">Save Product</button>
@@ -77,6 +89,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 
 @endsection
@@ -87,7 +100,9 @@
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"
+        integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="text/javascript">
         $(document).ready(function() {
 
@@ -104,13 +119,22 @@
                         name: 'name'
                     },
                     {
+                        data: 'category',
+                        name: 'category'
+                    },
+                    {
                         data: 'price',
                         name: 'price'
+                    },
+                    {
+                        data: 'image',
+                        name: 'image'
                     },
                     {
                         data: 'description',
                         name: 'description'
                     },
+
                     {
                         data: 'action',
                         name: 'action',
@@ -126,6 +150,9 @@
                 $('#productModalLabel').text('Add New Product');
                 $('#productModalBtn').text('Save Product');
                 $('#productModal').modal('show');
+                $('.error-message').remove();
+                $('#imagePreviews').empty();
+
             });
 
             $('#productForm').validate({
@@ -143,16 +170,16 @@
                     category_id: {
                         required: true,
                     },
-                    'images[]': {
-                        required: true,
-                    }
                 },
                 messages: {
                     name: "Please enter a product name",
                     price: "Please enter a valid price",
                     description: "Please enter product description",
                     category_id: "Please select a category",
-                    'images[]': "Please upload at least one image (JPEG, PNG, GIF)",
+                },
+                errorPlacement: function(error, element) {
+                    error.addClass("text-danger");
+                    error.insertAfter(element);
                 },
                 submitHandler: function(form) {
                     var formData = new FormData(form);
@@ -162,7 +189,7 @@
                         '{{ route('product.update', ['id' => ':productId']) }}'.replace(
                             ':productId', productId) :
                         '{{ route('product.store') }}';
-                    var method = productId ? 'PUT' : 'POST';
+                    var method = 'POST';
 
                     $.ajax({
                         url: url,
@@ -174,27 +201,53 @@
                             if (response.success) {
                                 $('#productModal').modal('hide');
                                 table.ajax.reload();
-                                alert('Product saved successfully!');
+                                toastr.success('Product saved successfully!');
+                                $('#imagePreviews').empty();
+
                             } else {
-                                alert('Error: Could not save product.');
+                                toastr.error('Error: Could not save product.');
+                                $('#imagePreviews').empty();
                             }
                         },
                         error: function(xhr) {
-                            if (xhr.status === 422) {
-                                $('#errorList').empty();
-                                var errors = xhr.responseJSON.errors;
-                                $.each(errors, function(field, messages) {
-                                    $.each(messages, function(index,
-                                        message) {
-                                        $('#errorList').append(
-                                            '<li class="text-danger">' +
-                                            message +
-                                            '</li>');
-                                    });
-                                });
-                                $('#errorList').show();
-                            } else {
-                                alert('Error: Could not save product');
+                            try {
+                                var response = JSON.parse(xhr
+                                    .responseText);
+                                if (xhr.status === 422) {
+                                    $('.error-message')
+                                        .remove();
+                                    var errors = response
+                                        .errors;
+                                    console.log('Validation Errors:',
+                                        errors);
+
+                                    if (errors) {
+                                        $.each(errors, function(field, messages) {
+                                            var inputField = $('[name="' +
+                                                field + '"]'
+                                            );
+                                            if (inputField.length === 0 && field ===
+                                                'images') {
+                                                inputField = $('[name="images[]"]');
+                                            }
+                                            $.each(messages, function(index,
+                                                message) {
+                                                inputField.after(
+                                                    '<span class="text-danger error-message">' +
+                                                    message +
+                                                    '</span>');
+                                                console.log(
+                                                    'Appended message:',
+                                                    message
+                                                );
+                                            });
+                                        });
+                                    }
+                                }
+                            } catch (e) {
+                                console.log('Error parsing JSON response: ' + e
+                                    .message);
+                                toastr.error('Error: Could not save category')
                             }
                         }
                     });
@@ -215,6 +268,25 @@
                         $('#productModalLabel').text('Edit Product');
                         $('#productModalBtn').text('Update Product');
                         $('#productModal').modal('show');
+                        $('#imagePreviews').empty();
+                        $('.error-message').remove();
+                        $('#images').val('');
+                        $('#req-sign').text('');
+
+                        if (Array.isArray(response.imagesPath) && response.imagesPath.length > 0) {
+                            $.each(response.imagesPath, function(index, image) {
+                                var html = `
+                                    <div class="image-preview" data-index="${index}">
+                                        <img src="${image}" class="img-thumbnail" width="100" height="100">
+                                    </div>
+                                `;
+
+                                $('#imagePreviews').append(html);
+                            });
+
+                        } else {
+                            console.log('No images or imagesPath is not an array');
+                        }
                     }
                 });
             });
@@ -232,20 +304,44 @@
                         success: function(response) {
                             if (response.success) {
                                 table.ajax.reload();
-                                alert('Product deleted successfully!');
+                                toastr.success('Product deleted successfully!')
                             } else {
-                                alert('Error: Could not delete product.');
+                                toastr.error('Error: Could not delete product.');
                             }
                         },
                         error: function(xhr) {
-                            alert('Error: Could not delete product');
+                            toastr.error('Error: Could not delete product.');
                         }
                     });
                 }
             });
+
+
+            var selectedFiles = [];
+            $('#images').change(function(e) {
+                var files = e.target.files;
+                var previewContainer = $('#imagePreviews');
+                previewContainer.empty();
+
+                selectedFiles = [];
+
+                $.each(files, function(index, file) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var fileIndex = selectedFiles.length;
+                        selectedFiles.push(file);
+
+                        var previewHtml = `
+                    <div class="image-preview" data-index="${fileIndex}">
+                        <img src="${e.target.result}" class="img-thumbnail" width="100">
+                    </div>
+                `;
+                        previewContainer.append(previewHtml);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
         });
     </script>
-
-
 @endsection
-
