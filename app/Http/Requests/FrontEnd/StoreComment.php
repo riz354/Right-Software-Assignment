@@ -22,13 +22,15 @@ class StoreComment extends FormRequest
     public function rules(): array
     {
         return [
-            'comment'=>"required"
+            'comment'=>"required|max:255|min:3"
         ];
     }
     public function messages(): array
     {
         return [
-            'comment.required'=>"Please Enter Comment"
+            'comment.required'=>"Please Enter Comment",
+            'comment.max'=>"Comment Should be maximum 255 character",
+            'comment.min'=>"Comment Should be maximum 3 character"
         ];
     }
 }
