@@ -13,10 +13,15 @@ class ProductController extends Controller
     {
         try {
             $products = Product::paginate(10);
-            $data =  ProductResource::collection($products);
+            $data =  ProductResource::collection($products->items());
             return response()->json([
                 'success' => true,
-                'data'=>$data
+                'data'=>$data,
+                'pagination' => [
+                    'total' => $products->total(),
+                    'per_page' => $products->perPage(),
+                    'current_page' => $products->currentPage(),
+                ]
             ]);
         } catch (\Throwable $th) {
             return response()->json([

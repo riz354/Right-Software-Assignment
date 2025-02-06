@@ -12,11 +12,16 @@ class CategoryController extends Controller
     public function index()
     {
         try {
-            $categories = Category::paginate(10);
-            $data =  CategoryResource::collection($categories);
+            $categories = Category::paginate(20);
+            $data =  CategoryResource::collection($categories->items());
             return response()->json([
                 'success' => true,
-                'data'=>$data
+                'data' => $data,
+                'pagination' => [
+                    'total' => $categories->total(),
+                    'per_page' => $categories->perPage(),
+                    'current_page' => $categories->currentPage(),
+                ]
             ]);
         } catch (\Throwable $th) {
             return response()->json([
