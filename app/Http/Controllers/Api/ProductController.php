@@ -16,7 +16,7 @@ class ProductController extends Controller
             $data =  ProductResource::collection($products->items());
             return response()->json([
                 'success' => true,
-                'data'=>$data,
+                'products'=>$data,
                 'pagination' => [
                     'total' => $products->total(),
                     'per_page' => $products->perPage(),

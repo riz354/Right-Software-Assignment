@@ -16,7 +16,7 @@ class CategoryController extends Controller
             $data =  CategoryResource::collection($categories->items());
             return response()->json([
                 'success' => true,
-                'data' => $data,
+                'categories' => $data,
                 'pagination' => [
                     'total' => $categories->total(),
                     'per_page' => $categories->perPage(),
