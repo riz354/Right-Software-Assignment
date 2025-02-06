@@ -20,7 +20,7 @@
                                 </div>
                                 <div class="flex-fill pl-3">
                                     <h6>{{ $category->name }}</h6>
-                                    <small class="text-body">{{ $category->products_count }} Products</small>
+                                    <small class="text-body">{{ count($category->products) }} Products</small>
                                 </div>
                             </div>
                         </a>
