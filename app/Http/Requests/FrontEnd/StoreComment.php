@@ -30,7 +30,7 @@ class StoreComment extends FormRequest
         return [
             'comment.required'=>"Please Enter Comment",
             'comment.max'=>"Comment Should be maximum 255 character",
-            'comment.min'=>"Comment Should be maximum 3 character"
+            'comment.min'=>"Comment Should be minimum 3 character"
         ];
     }
 }
