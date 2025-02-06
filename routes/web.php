@@ -1,17 +1,15 @@
 <?php
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\frontEnd\HomePageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    // return view('welcome');
-    return redirect()->route('login');
-});
+Route::get('/',[HomePageController::class,'index']);
+Route::get('/category/{id}/products',[HomePageController::class,'products'])->name('category.products');
+Route::get('/category/{category_id}/product/{product_id}/detail',[HomePageController::class,'productDetail'])->name('category.product.detail');
 
 Route::get('/dashboard', function () {
-    // return view('dashboard');
-    // return view('welcome');
     return redirect()->route('category.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -34,6 +32,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/edit/{id}',[ProductController::class,'edit'])->name('edit');
         Route::post('/update/{id}',[ProductController::class,'update'])->name('update');
         Route::delete('/destroy/{id}',[ProductController::class,'destroy'])->name('destroy');
+        Route::post('/product/{id}/comment',[HomePageController::class,'addComment'])->name('comment');
     });
 });
 

@@ -198,28 +198,17 @@
                                             .remove();
                                         var errors = response
                                             .errors;
-                                        console.log('Validation Errors:',
-                                            errors);
-
                                         if (errors) {
                                             $.each(errors, function(field, messages) {
                                                 var inputField = $('[name="' +
                                                     field + '"]'
                                                 );
-                                                console.log('Input Field:',
-                                                    inputField
-                                                );
-
                                                 $.each(messages, function(index,
                                                     message) {
                                                     inputField.after(
                                                         '<span class="text-danger error-message">' +
                                                         message +
                                                         '</span>');
-                                                    console.log(
-                                                        'Appended message:',
-                                                        message
-                                                    );
                                                 });
                                             });
                                         }

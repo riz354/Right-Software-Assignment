@@ -54,6 +54,12 @@
                   </ul>
               </li>
               <!--end::User Menu Dropdown-->
+
+              <li class="nav-item">
+                <a class="nav-link" href="{{ url('/') }}" >
+                    <i class="nav-icon bi bi-house"></i>
+                </a>
+            </li>
           </ul>
           <!--end::End Navbar Links-->
       </div>
