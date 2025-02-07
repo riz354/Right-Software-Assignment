@@ -17,15 +17,18 @@ class CategoryController extends Controller
             $data =  CategoryResource::collection($categories->items());
             return response()->json([
                 'success' => true,
-                'categories' => $data,
-                'pagination' => [
-                    'total' => $categories->total(),
-                    'per_page' => $categories->perPage(),
-                    'current_page' => $categories->currentPage(),
-                    'last_page' => $categories->lastPage(),
-                    'next_page_url' => $categories->nextPageUrl(),
-                    'prev_page_url' => $categories->previousPageUrl(),
-                ]
+                'data' => [
+                    'categories' => $data,
+                    'pagination' => [
+                        'total' => $categories->total(),
+                        'per_page' => $categories->perPage(),
+                        'current_page' => $categories->currentPage(),
+                        'last_page' => $categories->lastPage(),
+                        'next_page_url' => $categories->nextPageUrl(),
+                        'prev_page_url' => $categories->previousPageUrl(),
+                    ]
+                ],
+
             ]);
         } catch (\Throwable $th) {
             return response()->json([

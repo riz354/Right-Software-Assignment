@@ -17,15 +17,18 @@ class ProductController extends Controller
             $data =  ProductResource::collection($products->items());
             return response()->json([
                 'success' => true,
-                'products' => $data,
-                'pagination' => [
-                    'total' => $products->total(),
-                    'per_page' => $products->perPage(),
-                    'current_page' => $products->currentPage(),
-                    'last_page' => $products->lastPage(),
-                    'next_page_url' => $products->nextPageUrl(),
-                    'prev_page_url' => $products->previousPageUrl(),
-                ]
+                'data' => [
+                    'products' => $data,
+                    'pagination' => [
+                        'total' => $products->total(),
+                        'per_page' => $products->perPage(),
+                        'current_page' => $products->currentPage(),
+                        'last_page' => $products->lastPage(),
+                        'next_page_url' => $products->nextPageUrl(),
+                        'prev_page_url' => $products->previousPageUrl(),
+                    ]
+                ],
+
             ]);
         } catch (\Throwable $th) {
             return response()->json([

@@ -112,7 +112,7 @@
                 comment: {
                     required: "Please enter comment",
                     min: "Comment should be minimum 3 character",
-                    max: "Comment should be maximum 3 character",
+                    max: "Comment should be maximum 255 character",
 
                 }
             },
