@@ -45,7 +45,8 @@
                             <input type="hidden" id="categoryId">
                             <ul id="errorList" style="display: none;"></ul>
                             <div class="mb-3">
-                                <label for="name" class="form-label">Category Name<span class="text-danger">*</span></label>
+                                <label for="name" class="form-label">Category Name<span
+                                        class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="name" name="name" required>
                             </div>
                             <button type="submit" class="btn btn-primary" id="categoryModalBtn">Save Category</button>
@@ -73,7 +74,9 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('category.index') }}",
-                order: [[0, 'desc']],
+                order: [
+                    [0, 'desc']
+                ],
                 columns: [{
                         data: 'id',
                         name: 'id'
@@ -164,6 +167,7 @@
                     error.insertAfter(element);
                 },
                 submitHandler: function(form) {
+                    $('#categoryModalBtn').attr('disabled', true);
                     var categoryId = $('#categoryId').val();
                     var categoryName = $('#name').val();
 
@@ -183,6 +187,7 @@
                                 _token: '{{ csrf_token() }}',
                             },
                             success: function(response) {
+                                $('#categoryModalBtn').attr('disabled', false);
                                 $('#categoryModal').modal('hide');
                                 table.ajax.reload();
                                 response.success ? toastr.success(
@@ -191,6 +196,7 @@
                                 $('.error-message').remove();
                             },
                             error: function(xhr) {
+                                $('#categoryModalBtn').attr('disabled', false);
                                 try {
                                     var response = JSON.parse(xhr
                                         .responseText);

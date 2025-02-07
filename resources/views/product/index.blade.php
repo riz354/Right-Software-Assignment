@@ -146,7 +146,6 @@
                 ]
             });
 
-
             $('#addProductBtn').click(function() {
                 $('#productForm')[0].reset();
                 $('#productId').val('');
@@ -184,6 +183,7 @@
                     error.insertAfter(element);
                 },
                 submitHandler: function(form) {
+                    $('#productModalBtn').attr('disabled', true);
                     var formData = new FormData(form);
                     var productId = $('#productId').val();
 
@@ -200,6 +200,7 @@
                         processData: false,
                         contentType: false,
                         success: function(response) {
+                            $('#productModalBtn').attr('disabled', false);
                             if (response.success) {
                                 $('#productModal').modal('hide');
                                 table.ajax.reload();
@@ -212,6 +213,7 @@
                             }
                         },
                         error: function(xhr) {
+                            $('#productModalBtn').attr('disabled', false);
                             try {
                                 var response = JSON.parse(xhr
                                     .responseText);
