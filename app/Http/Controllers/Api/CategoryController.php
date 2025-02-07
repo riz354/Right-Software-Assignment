@@ -9,14 +9,26 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $categories = Category::paginate(10);
-            $data =  CategoryResource::collection($categories);
+            $per_page = $request->input('per_page', 10);
+            $categories = Category::paginate($per_page);
+            $data =  CategoryResource::collection($categories->items());
             return response()->json([
                 'success' => true,
-                'data'=>$data
+                'data' => [
+                    'categories' => $data,
+                    'pagination' => [
+                        'total' => $categories->total(),
+                        'per_page' => $categories->perPage(),
+                        'current_page' => $categories->currentPage(),
+                        'last_page' => $categories->lastPage(),
+                        'next_page_url' => $categories->nextPageUrl(),
+                        'prev_page_url' => $categories->previousPageUrl(),
+                    ]
+                ],
+
             ]);
         } catch (\Throwable $th) {
             return response()->json([

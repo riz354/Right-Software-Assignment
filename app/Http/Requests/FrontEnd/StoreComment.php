@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Category;
+namespace App\Http\Requests\FrontEnd;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateRequest extends FormRequest
+class StoreComment extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,15 +22,15 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-           'name' => 'required|unique:categories,name,' . $this->route('id')
+            'comment'=>"required|max:255|min:3"
         ];
     }
-
     public function messages(): array
     {
         return [
-            'name.required'=>'Category Name field is required',
-            'name.required'=>'Category Name field is required',
+            'comment.required'=>"Please Enter Comment",
+            'comment.max'=>"Comment Should be maximum 255 character",
+            'comment.min'=>"Comment Should be minimum 3 character"
         ];
     }
 }
