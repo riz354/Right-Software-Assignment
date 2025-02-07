@@ -110,6 +110,9 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('product.index') }}",
+                order: [
+                    [0, 'desc']
+                ],
                 columns: [{
                         data: 'id',
                         name: 'id'
@@ -134,7 +137,6 @@
                         data: 'description',
                         name: 'description'
                     },
-
                     {
                         data: 'action',
                         name: 'action',
@@ -143,6 +145,7 @@
                     }
                 ]
             });
+
 
             $('#addProductBtn').click(function() {
                 $('#productForm')[0].reset();

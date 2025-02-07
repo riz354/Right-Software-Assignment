@@ -5,6 +5,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css"
         integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 @endsection
 
 @section('content')
@@ -56,12 +59,26 @@
                 @if (isset($product->comments) && count($product->comments) > 0)
                     <div class="container">
                         @foreach ($product->comments as $comment)
-                            <div class="">
-                                <h6> <img
-                                        src="
-                                 {{ asset('assets/assets/img/emptyUser.jpg') }}"
-                                        height="30px" width="30px">{{ $comment->user->name }}</h6>
-                                <p class="ml-5">{{ $comment->comment }}</h2>
+                            <div class="comment-container" id="comment-{{ $comment->id }}">
+                                <h6>
+                                    <img src="{{ asset('assets/assets/img/emptyUser.jpg') }}" height="30px"
+                                        width="30px">{{ $comment->user->name }}
+                                </h6>
+                                <div id="edit-form-{{ $comment->id }}" style="display:none;">
+                                    <textarea id="edit-comment-text-{{ $comment->id }}" class="form-control" rows="3" required>{{ $comment->comment }}</textarea>
+                                    <button type="button" class="btn btn-sm btn-success"
+                                        onclick="saveComment({{ $comment->id }})">Save</button>
+                                    <button type="button" class="btn btn-sm btn-danger"
+                                        onclick="cancelEdit({{ $comment->id }})">Cancel</button>
+                                </div>
+                                <p class="ml-5 comment-text" id="comment-text-{{ $comment->id }}">
+                                    {{ $comment->comment }}
+                                    @if (Auth::user()->id == $comment->user_id)
+                                        <button class="btn btn-sm btn-primary edit-comment" data-id="{{ $comment->id }}"
+                                            data-comment="{{ $comment->comment }}">Edit</button>
+                                    @endif
+
+                                </p>
                             </div>
                         @endforeach
                     </div>
@@ -87,11 +104,16 @@
             rules: {
                 comment: {
                     required: true,
+                    minlength: 3,
+                    maxlength: 255
                 }
             },
             messages: {
                 comment: {
                     required: "Please enter comment",
+                    min: "Comment should be minimum 3 character",
+                    max: "Comment should be maximum 3 character",
+
                 }
             },
             errorPlacement: function(error, element) {
@@ -155,5 +177,52 @@
 
             }
         });
+
+        $(document).on('click', '.edit-comment', function() {
+            var commentId = $(this).data('id');
+            var commentText = $(this).data('comment');
+            $('#comment-text-' + commentId).hide();
+            $('#edit-form-' + commentId).show();
+            $('#edit-comment-text-' + commentId).val(commentText);
+        });
+
+        function saveComment(commentId) {
+            var newComment = $('#edit-comment-text-' + commentId).val();
+            var url = '{{ route('product.comment.update', ['id' => ':commentId']) }}'.replace(
+                ':commentId',
+                commentId);
+            if (newComment.trim() === "") {
+                toastr.error('Please enter a comment');
+            } else if (((newComment.trim()).length < 3)) {
+                toastr.error('Please enter a comment minimum 3 character');
+            } else {
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: {
+                        comment: newComment,
+                        _token: '{{ csrf_token() }}',
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#comment').val('');
+                            $('#comment-box').empty(response.view);
+                            $('#comment-box').html(response.view);
+                            toastr.success('Your comment was updated successfully!');
+                        }
+                    },
+                    error: function(xhr) {
+                        var response = JSON.parse(xhr.responseText);
+                        toastr.error('Error while updating comment');
+                    }
+                });
+            }
+
+        }
+
+        function cancelEdit(commentId) {
+            $('#edit-form-' + commentId).hide();
+            $('#comment-text-' + commentId).show();
+        }
     </script>
 @endsection

@@ -35,6 +35,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/update/{id}',[ProductController::class,'update'])->name('update');
         Route::delete('/destroy/{id}',[ProductController::class,'destroy'])->name('destroy');
         Route::post('/product/{id}/comment',[CommentsController::class,'store'])->name('comment');
+        Route::post('/product/{id}/comment/update',[CommentsController::class,'updateComment'])->name('comment.update');
+
     });
 });
 

@@ -45,8 +45,16 @@ class UserController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => "New User Registered Successfully",
-                'data' => $user,
-                'token' => $user->createToken('API TOKEN')->plainTextToken,
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'created_at' => $user->created_at->format('M d, Y'), 
+                        'updated_at' => $user->updated_at->format('M d, Y'), 
+                    ],
+                    'token' => $user->createToken('API TOKEN')->plainTextToken,
+                ],
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -84,8 +92,16 @@ class UserController extends Controller
             return response()->json([
                 'status' => true,
                 'message' => 'Login successful',
-                'data' => $user,
-                'token' => $token,
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'created_at' => $user->created_at->format('M d, Y'), 
+                        'updated_at' => $user->updated_at->format('M d, Y'), 
+                    ],
+                    'token' => $token,
+                ],
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([

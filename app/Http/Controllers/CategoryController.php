@@ -18,7 +18,7 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = Category::select('*');
+            $data = Category::select('id','name')->orderBy('id','desc')->get();
             return DataTables::of($data)
                 ->editColumn('id', function ($category) {
                     return $category->id ?? '-';

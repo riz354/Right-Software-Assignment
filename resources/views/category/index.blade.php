@@ -73,6 +73,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('category.index') }}",
+                order: [[0, 'desc']],
                 columns: [{
                         data: 'id',
                         name: 'id'
