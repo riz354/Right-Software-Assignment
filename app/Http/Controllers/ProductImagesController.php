@@ -19,9 +19,9 @@ class ProductImagesController extends Controller
             $data = [
                 'product' => $product,
             ];
-            return view('product.images', $data);
+            return view('admin.product.images', $data);
         } catch (\Throwable $th) {
-            return redirect()->route('product.index')->withError('Something Went Wrong');
+            return redirect()->route('admin.product.index')->withError('Something Went Wrong');
         }
     }
 

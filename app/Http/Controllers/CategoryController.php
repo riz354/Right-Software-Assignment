@@ -36,7 +36,7 @@ class CategoryController extends Controller
                 ->make(true);
         }
 
-        return view('category.index');
+        return view('admin.category.index');
     }
 
     /**

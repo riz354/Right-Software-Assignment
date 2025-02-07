@@ -1,15 +1,15 @@
-@include('layout.header')
+@include('admin.layout.header')
 <!--begin::Body-->
 
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
     <!--begin::App Wrapper-->
     <div class="app-wrapper">
         <!--begin::navbar-->
-        @include('layout.navbar')
+        @include('admin.layout.navbar')
         <!--end::navbar-->
 
         <!--begin::Sidebar-->
-        @include('layout.sidebar')
+        @include('admin.layout.sidebar')
         <!--end::Sidebar-->
 
         <!--begin::App Main-->
@@ -20,14 +20,14 @@
         </main>
         <!--end::App Main-->
         <!--begin::Footer-->
-        @include('layout.footer')
+        @include('admin.layout.footer')
         <!--end::Footer-->
     </div>
     <!--end::App Wrapper-->
 
 
     <!--begin::Script-->
-    @include('layout.scripts')
+    @include('admin.layout.scripts')
     <!--end::Script-->
 </body>
 <!--end::Body-->

@@ -73,7 +73,7 @@ class ProductController extends Controller
             'categories' => $categories
         ];
 
-        return view('product.index', $data);
+        return view('admin.product.index', $data);
     }
 
     /**
