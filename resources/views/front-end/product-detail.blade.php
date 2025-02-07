@@ -73,7 +73,7 @@
                                 </div>
                                 <p class="ml-5 comment-text" id="comment-text-{{ $comment->id }}">
                                     {{ $comment->comment }}
-                                    @if (Auth::user()->id == $comment->user_id)
+                                    @if (Auth::check() && Auth::user()->id == $comment->user_id)
                                         <button class="btn btn-sm btn-primary edit-comment" data-id="{{ $comment->id }}"
                                             data-comment="{{ $comment->comment }}">Edit</button>
                                     @endif

@@ -346,6 +346,27 @@
                 });
             });
 
+
+            // let searchTimeout;
+            // let typingDelay = 10000; 
+            // $('#productsTable_filter input').on('keyup', function() {
+            //     clearTimeout(searchTimeout);
+            //     var searchValue = $('#productsTable_filter input').val();
+            //     console.log('Search value:', searchValue);
+            //     searchTimeout = setTimeout(function() {
+            //         if (searchValue.trim() !== '') {
+            //             console.log('Applying search with value:',
+            //                 searchValue); 
+            //             table.search(searchValue)
+            //                 .draw(); 
+            //         } else {
+            //             console.log('Clearing search because value is empty');
+            //             table.search('')
+            //                 .draw(); 
+            //         }
+            //     }, typingDelay); 
+            // });
+
         });
     </script>
 @endsection
