@@ -347,19 +347,25 @@
             });
 
 
-            let searchTimeout;
-            let typingDelay = 500; 
-            setTimeout(function() {
-                $('#productsTable_filter input').off('keyup');
-            }, 500);
-            setTimeout(function() {
-                $('#productsTable_filter input').off('input');
-            }, 500);
-            setTimeout(function() {
-                $('#productsTable_filter input').off('blur');
-            }, 500);
 
-            $('#productsTable_filter input').on('change', function() {
+
+            let searchTimeout;
+            let typingDelay = 2000;
+
+            $('#productsTable_filter input').off('keyup input blur');
+            $('#productsTable_filter input').on('input', function() {
+                clearTimeout(searchTimeout);
+                var searchValue = $(this).val().trim();
+                searchTimeout = setTimeout(function() {
+                    if (searchValue !== '') {
+                        table.search(searchValue).draw();
+                    } else {
+                        table.search('').draw();
+                    }
+                }, typingDelay);
+            });
+
+            $('#productsTable_filter input').on('blur', function() {
                 clearTimeout(searchTimeout);
                 var searchValue = $(this).val().trim();
                 searchTimeout = setTimeout(function() {
