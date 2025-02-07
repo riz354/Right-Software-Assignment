@@ -44,15 +44,15 @@ class ProductController extends Controller
                         $path = asset('storage/' . $image->image_path);
                         $images_preview .= '
                             <div class="col-4 text-center">
-                                <img src="'.$path.'" class="img-thumbnail m-0 p-0" width="50" height="50">
+                                <img src="' . $path . '" class="img-thumbnail m-0 p-0" width="50" height="50">
                             </div>
                         ';
                     }
-                    $images_preview .= '</div>'; 
+                    $images_preview .= '</div>';
                     return $images_preview;
                 })
-                
-                
+
+
                 ->editColumn('price', function ($product) {
                     return $product->price ?? '-';
                 })->editColumn('description', function ($product) {
@@ -62,9 +62,10 @@ class ProductController extends Controller
                 ->addColumn('action', function ($product) {
                     $editBtn = '<a href="javascript:void(0)" class="btn btn-sm btn-primary edit-btn" data-id="' . $product->id . '" data-name="' . $product->name . '"><i class="fa fa-pen-to-square"></i></a>';
                     $deleteBtn = '<a href="javascript:void(0)" class="btn btn-sm btn-danger delete-btn" data-id="' . $product->id . '"><i class="fa fa-trash"></i></a>';
-                    return $editBtn . ' ' . $deleteBtn;
+                    $imagesBtn = '<a href="' . route('product.images', ['id' => $product->id]) . '" class="btn btn-sm btn-primary "><i class="fa fa-image"></i></a>';
+                    return $editBtn . ' ' . $deleteBtn . ' ' . $imagesBtn;
                 })
-                ->rawColumns(['action','image'])
+                ->rawColumns(['action', 'image'])
                 ->make(true);
         }
         $categories = Category::get();
@@ -76,54 +77,38 @@ class ProductController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreRequest $request)
     {
         try {
-        DB::transaction(function () use ($request) {
-            $product = Product::create([
-                'name' => $request->name,
-                'category_id' => $request->category_id,
-                'price' => $request->price,
-                'description' => $request->description,
-            ]);
+            DB::transaction(function () use ($request) {
+                $product = Product::create([
+                    'name' => $request->name,
+                    'category_id' => $request->category_id,
+                    'price' => $request->price,
+                    'description' => $request->description,
+                ]);
 
-            if ($request->hasFile('images')) {
-                $imagesPath = [];
-                foreach ($request->file('images') as $image) {
-                    $path = $image->store('temp-products', 'public');
-                    $imagesPath[] =  $path;
+                if ($request->hasFile('images')) {
+                    $imagesPath = [];
+                    foreach ($request->file('images') as $image) {
+                        $path = $image->store('temp-products', 'public');
+                        $imagesPath[] =  $path;
+                    }
+                    dispatch(new ProcessProductImages($product->id,  $imagesPath));
                 }
-                dispatch(new ProcessProductImages($product->id,  $imagesPath));
-            }
-        });
+            });
 
-        return response()->json([
-            'success' => true,
-        ]);
+            return response()->json([
+                'success' => true,
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
             ]);
         }
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
     }
 
     /**
@@ -185,7 +170,6 @@ class ProductController extends Controller
         }
     }
 
-
     public function destroy($id)
     {
         try {
@@ -214,5 +198,5 @@ class ProductController extends Controller
             ]);
         }
     }
-    
+
 }

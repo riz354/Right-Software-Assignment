@@ -2,7 +2,7 @@
 
 @if (isset($product->comments) && count($product->comments) > 0)
     <div class="container">
-        @foreach ($product->comments as $comment)
+        @foreach ($product->comments->sortByDesc('created_at') as $comment)
             <div class="comment-container" id="comment-{{ $comment->id }}">
                 <h6>
                     <img src="{{ asset('assets/assets/img/emptyUser.jpg') }}" height="30px"

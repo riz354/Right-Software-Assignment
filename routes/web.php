@@ -4,6 +4,7 @@ use App\Http\Controllers\frontEnd\CommentsController;
 use App\Http\Controllers\frontEnd\HomePageController;
 use App\Http\Controllers\frontEnd\ProductsController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductImagesController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +35,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/edit/{id}',[ProductController::class,'edit'])->name('edit');
         Route::post('/update/{id}',[ProductController::class,'update'])->name('update');
         Route::delete('/destroy/{id}',[ProductController::class,'destroy'])->name('destroy');
+        Route::get('/{id}/images',[ProductImagesController::class,'index'])->name('images');
+        Route::post('/{id}/images/store',[ProductImagesController::class,'store'])->name('images.store');
+        Route::delete('/image/{id}/destroy',[ProductImagesController::class,'destroy'])->name('image.destroy');
         Route::post('/product/{id}/comment',[CommentsController::class,'store'])->name('comment');
         Route::post('/product/{id}/comment/update',[CommentsController::class,'updateComment'])->name('comment.update');
 

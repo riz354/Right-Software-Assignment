@@ -25,7 +25,7 @@
                             <th>Name</th>
                             <th>Category</th>
                             <th>Price</th>
-                            <th>Images</th>
+                            {{-- <th>Images</th> --}}
                             <th>Description</th>
                             <th width="100px">Action</th>
                         </tr>
@@ -129,10 +129,10 @@
                         data: 'price',
                         name: 'price'
                     },
-                    {
-                        data: 'image',
-                        name: 'image'
-                    },
+                    // {
+                    //     data: 'image',
+                    //     name: 'image'
+                    // },
                     {
                         data: 'description',
                         name: 'description'
@@ -155,7 +155,6 @@
                 $('#productModal').modal('show');
                 $('.error-message').remove();
                 $('#imagePreviews').empty();
-
             });
 
             $('#productForm').validate({
