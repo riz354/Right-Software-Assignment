@@ -50,7 +50,7 @@
                         </div>
                         <div class="col-4">
                             <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">Sign In</button>
+                                <button type="submit" class="btn btn-primary">LogIn</button>
                             </div>
                         </div>
                     </div>
