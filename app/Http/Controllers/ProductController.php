@@ -62,7 +62,7 @@ class ProductController extends Controller
                 ->addColumn('action', function ($product) {
                     $editBtn = '<a href="javascript:void(0)" class="btn btn-sm btn-primary edit-btn" data-id="' . $product->id . '" data-name="' . $product->name . '"><i class="fa fa-pen-to-square"></i></a>';
                     $deleteBtn = '<a href="javascript:void(0)" class="btn btn-sm btn-danger delete-btn" data-id="' . $product->id . '"><i class="fa fa-trash"></i></a>';
-                    $imagesBtn = '<a href="' . route('product.images', ['id' => $product->id]) . '" class="btn btn-sm btn-primary "><i class="fa fa-image"></i></a>';
+                    $imagesBtn = '<a href="' . route('product.images.index', ['id' => $product->id]) . '" class="btn btn-sm btn-primary "><i class="fa fa-image"></i></a>';
                     return $editBtn . ' ' . $deleteBtn . ' ' . $imagesBtn;
                 })
                 ->rawColumns(['action', 'image'])

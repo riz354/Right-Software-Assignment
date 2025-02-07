@@ -124,7 +124,7 @@
                 var productId = $('#product_id').val();
                 var comment = $('#comment').val();
 
-                var url = '{{ route('product.comment', ['id' => ':productId']) }}'.replace(
+                var url = '{{ route('product.comment.index', ['id' => ':productId']) }}'.replace(
                     ':productId',
                     productId);
 

@@ -19,7 +19,7 @@
 
                 <li class="nav-item">
                     <a href="{{ route('product.index') }}"
-                        class="nav-link {{ request()->routeIs('product.index') || request()->routeIs('product.images') ? 'active' : '' }}">
+                        class="nav-link {{ request()->routeIs('product.index') || request()->routeIs('product.images.index') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-box"></i>
                         <p>Products</p>
                     </a>
