@@ -12,6 +12,8 @@
     <div class="container mt-3">
 
         <div class="card">
+            <h4 class="text-center pt-3">{{ $product->name }} Images</h4>
+
             <div class="card-body">
                 <form id="productImagesForm" enctype="multipart/form-data">
                     @csrf
@@ -37,7 +39,7 @@
             <div class="container my-3">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="text-center">{{ $product->name }} Images</h4>
+                        <h4 class="text-center">{{ $product->name }} Images Preview</h4>
                         <div class="row px-xl-5 pb-3">
                             @if (isset($product->images))
                                 @forelse ($product->images as $image)
