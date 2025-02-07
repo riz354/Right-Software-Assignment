@@ -241,7 +241,7 @@
             }, 500);
             setTimeout(function() {
                 $('#categoriesTable_filter input').off('input');
-            }, 900);
+            }, 500);
             setTimeout(function() {
                 $('#categoriesTable_filter input').off('blur');
             }, 500);

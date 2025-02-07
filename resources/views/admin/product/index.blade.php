@@ -354,7 +354,7 @@
             }, 500);
             setTimeout(function() {
                 $('#productsTable_filter input').off('input');
-            }, 900);
+            }, 500);
             setTimeout(function() {
                 $('#productsTable_filter input').off('blur');
             }, 500);
