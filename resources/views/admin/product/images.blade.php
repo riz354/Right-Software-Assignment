@@ -42,7 +42,7 @@
                         <h4 class="text-center">{{ $product->name }} Images Preview</h4>
                         <div class="row px-xl-5 pb-3">
                             @if (isset($product->images))
-                                @forelse ($product->images as $image)
+                                @forelse ($product->images->sortByDesc('created_at') as $image)
                                     <div class="col-lg-3 col-md-4 col-sm-6 pb-1" id="image-box-{{ $image->id }}">
                                         <div class="cat-item align-items-center mb-4">
                                             <div class="overflow-hidden" style="width: 100px; height: 100px;">

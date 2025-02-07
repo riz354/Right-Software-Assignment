@@ -6,6 +6,7 @@
             <span class="brand-text fw-light">Assignment</span>
         </a>
     </div>
+    
     <div class="sidebar-wrapper">
         <nav class="mt-2">
             <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
