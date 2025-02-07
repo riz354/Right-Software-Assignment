@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Category\StoreRequest;
+use App\Http\Requests\Category\UpdateRequest;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 
 class CategoryController extends Controller
@@ -56,11 +58,6 @@ class CategoryController extends Controller
                 'success' => true,
                 'category' => $category,
             ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            $errors = $e->errors();
-            return response()->json([
-                'errors' => $errors,  
-            ], 422); 
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
@@ -100,7 +97,7 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(UpdateRequest $request, $id)
     {
         try {
             $category = Category::updateOrCreate(['id' => $id], ['name' => $request->name]);

@@ -1,9 +1,12 @@
 @extends('layout.main-layout')
-@section('title', 'AdminLTE v4 | Category')
+@section('title', 'Assignment | Category')
 @section('page-css')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" />
     <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css"
+        integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 @endsection
 
 @section('content')
@@ -42,8 +45,8 @@
                             <input type="hidden" id="categoryId">
                             <ul id="errorList" style="display: none;"></ul>
                             <div class="mb-3">
-                                <label for="categoryName" class="form-label">Category Name</label>
-                                <input type="text" class="form-control" id="categoryName" name="categoryName" required>
+                                <label for="name" class="form-label">Category Name<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" name="name" required>
                             </div>
                             <button type="submit" class="btn btn-primary" id="categoryModalBtn">Save Category</button>
                         </form>
@@ -51,9 +54,6 @@
                 </div>
             </div>
         </div>
-
-
-
     </div>
 
 @endsection
@@ -64,7 +64,9 @@
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"
+        integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="text/javascript">
         $(document).ready(function() {
             var table = $('#categoriesTable').DataTable({
@@ -85,7 +87,10 @@
                         orderable: false,
                         searchable: false
                     }
-                ]
+                ],
+                language: {
+                    searchPlaceHolder: 'Search..',
+                }
             });
 
             $('#addCategoryBtn').click(function() {
@@ -94,6 +99,7 @@
                 $('#categoryModalLabel').text('Add New Category');
                 $('#categoryModalBtn').text('Save Category');
                 $('#categoryModal').modal('show');
+                $('.error-message').remove();
             });
 
             $(document).on('click', '.edit-btn', function() {
@@ -105,15 +111,17 @@
                     method: 'GET',
                     success: function(response) {
                         $('#categoryId').val(response.category.id);
-                        $('#categoryName').val(response.category.name);
+                        $('#name').val(response.category.name);
                         $('#categoryModalLabel').text(
                             'Edit Category');
                         $('#categoryModalBtn').text(
                             'Update Category');
                         $('#categoryModal').modal('show');
+                        $('.error-message').remove();
+
                     },
                     error: function(xhr) {
-                        alert('Error fetching category details');
+                        toastr.error('Error fetching category details');
                     }
                 });
             });
@@ -129,10 +137,11 @@
                         },
                         success: function(response) {
                             table.ajax.reload();
-                            alert('Category deleted successfully!');
+                            toastr.success('Category deleted successfully!');
                         },
                         error: function(xhr) {
-                            alert('Error deleting category');
+                            toastr.success('Error deleting category');
+
                         }
                     });
                 }
@@ -155,7 +164,8 @@
                 },
                 submitHandler: function(form) {
                     var categoryId = $('#categoryId').val();
-                    var categoryName = $('#categoryName').val();
+                    var categoryName = $('#name').val();
+
                     if (categoryName != "") {
                         var url = categoryId ?
                             '{{ route('category.update', ['id' => ':categoryId']) }}'.replace(
@@ -174,28 +184,53 @@
                             success: function(response) {
                                 $('#categoryModal').modal('hide');
                                 table.ajax.reload();
-                                alert(response.success ? 'Category saved successfully!' :
-                                    'Error saving category.');
+                                response.success ? toastr.success(
+                                    'Category saved successfully!') : toastr.error(
+                                    'Error  saving category ')
+                                $('.error-message').remove();
                             },
                             error: function(xhr) {
-                                if (xhr.status === 422) {
-                                    $('#errorList').empty();
-                                    var errors = xhr.responseJSON.errors;
-                                    if (errors) {
-                                        $.each(errors, function(field, messages) {
-                                            $.each(messages, function(index,
-                                                message) {
-                                                $('#errorList').append(
-                                                    '<li class="text-danger">' +
-                                                    message + '</li>');
+                                try {
+                                    var response = JSON.parse(xhr
+                                        .responseText);
+                                    if (xhr.status === 422) {
+                                        $('.error-message')
+                                            .remove();
+                                        var errors = response
+                                            .errors;
+                                        console.log('Validation Errors:',
+                                            errors);
+
+                                        if (errors) {
+                                            $.each(errors, function(field, messages) {
+                                                var inputField = $('[name="' +
+                                                    field + '"]'
+                                                );
+                                                console.log('Input Field:',
+                                                    inputField
+                                                );
+
+                                                $.each(messages, function(index,
+                                                    message) {
+                                                    inputField.after(
+                                                        '<span class="text-danger error-message">' +
+                                                        message +
+                                                        '</span>');
+                                                    console.log(
+                                                        'Appended message:',
+                                                        message
+                                                    );
+                                                });
                                             });
-                                        });
-                                        $('#errorList').show();
+                                        }
                                     }
-                                } else {
-                                    alert('Error: Could not save category');
+                                } catch (e) {
+                                    console.log('Error parsing JSON response: ' + e
+                                        .message);
+                                    toastr.error('Error: Could not save category')
                                 }
                             }
+
                         });
                     }
 
